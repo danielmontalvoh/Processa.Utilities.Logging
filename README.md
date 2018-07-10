@@ -27,11 +27,20 @@ settings.RootFolderPath = @"C:\Temp";
 var logManager = new LogManager(settings);
 ```
 
-## Establecer el Webhook de Slack
+## Configurar las notificaciones de Slack
+Logging permite establcer un webhook personalizado para Slack para enviar a un canal de Slack información de una excepción. Una vez configurada la integración de Slack, Logging enviará todos los mensajes de error publicados a dicho canal.
+
+Siga [estas instrucciones ](https://api.slack.com/incoming-webhooks) para obtener la URL del Webhook.
+
+```AsciiDoc
+Ejemplo de una URL de webhook en Slack
+https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX
+```
 
 ```c#
 var settings = new LoggerSettings();
 // Vea: https://api.slack.com/incoming-webhooks
+// Reemplace el valor "http://slack.com/services/X/Y/Z" por la URL de su webhook.
 settings.SlackUrl = "http://slack.com/services/X/Y/Z"
 var logManager = new LogManager(settings);
 logManager.Error(AnException, "What happened here?");
