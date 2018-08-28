@@ -103,9 +103,12 @@ Get-EventLog -LogName 'Processa'
 
 ```c#
 var logManager = new LogManager();
+// También puede utilizar la propiedad estática Instance
+// LogManager.Instance
 try
 {
 	logManager.Debug("The time is {Now}", DateTime.Now);
+	LogManager.Instance.Debug("The time is {Now}", DateTime.Now);
 	logManager.Info(myObject);
 }
 catch(Exception exc){
