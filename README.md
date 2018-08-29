@@ -2,6 +2,19 @@
 
 Facilita el registro de información de diagnóstico (*logging*) para una aplicación. Expone métodos para generar tres tipos de información:
 
+## Instalación
+
+El paquete `Processa.Utilities.Logging`, está disponible a través de Nuget o Proget
+
+```powershell
+Install-Package Processa.Utilities.Logging
+```
+
+## Versiones soportadas de .NET Framework:
+
+- NET 4.6.0 o superior
+
+
 ![Preview](image_preview.png)
 
 
