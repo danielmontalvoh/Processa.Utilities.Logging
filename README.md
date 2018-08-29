@@ -2,6 +2,16 @@
 
 Facilita el registro de información de diagnóstico (*logging*) para una aplicación. Expone métodos para generar tres tipos de información:
 
+![Preview](image_preview.png)
+
+
+- **Debug**: Información de depuración. Básicamente se trata de mensajes de texto adicional a la fecha y hora en que se escribió el mensaje. Los archivos se rotan cada dos días.
+
+
+- **Error**: Información de excepciones. Guarda el registro de excepciones (mensaje, tipo, pila, etc) generadas por la aplicación. Los archivos se rotan cada 31 días. Ademas de guardar la información en un archivo, deja una copia de la misma en el log de eventos del sistema operativo y si se establece un valor para la propiedad `SlackUrl`, también envía un mensaje al Webhook configurado.
+
+- **Info**: Información de seguimiento. Guarda un objeto en formato `JSON`. Si desea, puede excluir algunas propiedades del objeto antes de guardar. Los archivos se rotan cada dos días.
+
 ## Instalación
 
 El paquete `Processa.Utilities.Logging`, está disponible a través de Nuget o Proget
@@ -13,18 +23,6 @@ Install-Package Processa.Utilities.Logging
 ## Versiones soportadas de .NET Framework:
 
 - NET 4.6.0 o superior
-
-
-![Preview](image_preview.png)
-
-
-- **Debug**: Información de depuración. Básicamente se trata de mensajes de texto adicional a la fecha y hora en que se escribió el mensaje. Los archivos se rotan cada dos días.
-
-
-- **Error**: Información de excepciones. Guarda el registro de excepciones (mensaje, tipo, pila, etc) generadas por la aplicación. Los archivos se rotan cada 31 días. Ademas de guardar la información en un archivo, deja una copia de la misma en el log de eventos del sistema operativo y si se establece un valor para la propiedad `SlackUrl`, también envía un mensaje al Webhook configurado.
-
-- **Info**: Información de seguimiento. Guarda un objeto en formato `JSON`. Si desea, puede excluir algunas propiedades del objeto antes de guardar. Los archivos se rotan cada dos días.
-
 
 ## Conceptos básicos de configuración
 
