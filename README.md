@@ -2,27 +2,13 @@
 
 Facilita el registro de información de diagnóstico (*logging*) para una aplicación. Expone métodos para generar tres tipos de información:
 
-![Preview](image_preview.png)
-
-
 - **Debug**: Información de depuración. Básicamente se trata de mensajes de texto adicional a la fecha y hora en que se escribió el mensaje. Los archivos se rotan cada dos días.
-
-
-- **Error**: Información de excepciones. Guarda el registro de excepciones (mensaje, tipo, pila, etc) generadas por la aplicación. Los archivos se rotan cada 31 días. Ademas de guardar la información en un archivo, deja una copia de la misma en el log de eventos del sistema operativo y si se establece un valor para la propiedad `SlackUrl`, también envía un mensaje al Webhook configurado.
-
+ 
+- **Error**: Información de excepciones. Guarda el registro de excepciones (mensaje, tipo, pila, etc) generadas por la aplicación. Los archivos se rotan cada 31 días. Ademas de guardar la información en un archivo, deja una copia de la misma en el log de eventos del sistema operativo y si se establece un valor para la propiedad `SlackWebhookUri`, también envía un mensaje al Webhook configurado.
+ 
 - **Info**: Información de seguimiento. Guarda un objeto en formato `JSON`. Si desea, puede excluir algunas propiedades del objeto antes de guardar. Los archivos se rotan cada dos días.
 
-## Instalación
-
-El paquete `Processa.Utilities.Logging`, está disponible a través de Nuget o Proget
-
-```powershell
-Install-Package Processa.Utilities.Logging
-```
-
-## Versiones soportadas de .NET Framework:
-
-- NET 4.6.0 o superior
+![Preview](image_preview.png)
 
 ## Conceptos básicos de configuración
 
@@ -37,25 +23,84 @@ LoggerSettings settings = new LoggerSettings();
 settings.RootFolderPath = @"C:\Temp";
 var logManager = new LogManager(settings);
 ```
+### Archivo de configuración
+_Processa.Utilities.Logging_ permite la lectura de los datos de configuración desde un archivo de configuración con el nombre: `Processa.Utilities.Logging.dll.config` en el mismo directorio de los ensamblados de su aplicación.
 
-## Configurar las notificaciones de Slack
-Logging permite establcer un webhook personalizado para Slack para enviar a un canal de Slack información de una excepción. Una vez configurada la integración de Slack, Logging enviará todos los mensajes de error publicados a dicho canal.
+Configuración predeterminada:
+```xml
+<configuration>
+  <appSettings>
+    <clear/>
+    <add key="LogFolderPath"/>
+    <add key="LogFolderName" value="Logs"/>
+    <add key="PrefixFileName"/>
+    <add key="DebugTemplate" value="{Username} - {Level} - {Timestamp:yyyy-MM-dd HH:mm:ss.fff} - {Message}{NewLine}"/>
+    <add key="DebugFileName" value="Debug.txt"/>
+    <add key="DebugRetainedFile" value="2"/>
+    <add key="ErrorFileName" value="Error.txt"/>
+    <add key="ErrorRetainedFile" value="32"/>
+    <add key="ErrorTemplate" value="Timestamp: {Timestamp:yyyy-MM-dd HH:mm:ss.fff}{NewLine}Message: {Message}{NewLine}Exception: {Exception}Exception Data: {NewLine}{ExceptionData}{NewLine}{Separator}{NewLine}"/>
+    <add key="InfoFileName" value="Info.txt"/>
+    <add key="InfoRetainedFile" value="2"/>
+    <add key="InfoTemplate" value="Timestamp: {Timestamp:yyyy-MM-dd HH:mm:ss.fff}{NewLine}{Message}{NewLine}{Separator}{NewLine}"/>
+    <add key="EventLogName" value="Processa"/>
+    <add key="EventLogSourceName"/>
+    <add key="EventLogTemplate" value="Timestamp: {Timestamp:yyyy-MM-dd HH:mm:ss.fff}{NewLine}Message: {Message}{NewLine}Username: {Username}{NewLine}Exception: {Exception}Exception Data: {ExceptionData}"/>
+    <add key="SlackWebhookUri"/>
+    <add key="RollingInterval" value="Day"/>
+    <add key="FlushToDiskInterval" value="60"/>
+  </appSettings>
+  <connectionStrings>
+    <clear/>
+  </connectionStrings>
+</configuration>
+``` 
 
-Siga [estas instrucciones ](https://api.slack.com/incoming-webhooks) para obtener la URL del Webhook.
+#### Parámetros de configuración:
 
-```AsciiDoc
-Ejemplo de una URL de webhook en Slack
-https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX
-```
+| Parámetro | Descripción | Valor predeterminado |
+| --------- | ----------- | -------------------- |
+| LogFolderPath | Ruta de acceso de la carpeta raíz donde se crearán los archivos de logs. | Cuando no se específica un valor, se usará la raíz del ensamblado: `Processa.Utilities.Logging.dll` |
+| LogFolderName | Nombre de la carpeta donde se crearán los archivos de logs. | `Logs` |
+| PrefixFileName | Prefijo que se utilizará para el nombre de los archivos de logs. | Cuando no se específica un valor, se usará el nombre del emsamblado que hace uso de la funcionalidad. |
+| DebugTemplate | Plantilla que se utilizará para escribir y dar formato a la información en el archivo de **Debug**. | {Username} - {Timestamp:yyyy-MM-dd HH:mm:ss.fff} - {Message}{NewLine} |
+| DebugRetainedFile | Número de archivos que serán persistidos por defecto para la información de **Debug**. | `2` |
+| DebugFileName | Nombre para el archivo de logs donde se escribirá la información de **Debug**. | `Debug.txt` |
+| ErrorTemplate | Plantilla que se utilizará para escribir y dar formato a la información en el archivo de **Error**. | Timestamp: {Timestamp:yyyy-MM-dd HH:mm:ss.fff}{NewLine}Message: {Message}{NewLine}Exception: {Exception}Exception Data: {ExceptionData}{NewLine}{Separator}{NewLine} |
+| ErrorRetainedFile | Número de archivos que serán persistidos por defecto para la información de **Error**. | `32` |
+| ErrorFileName | Nombre para el archivo de logs donde se escribirá la información de **Error**. | `Error.txt` |
+| InfoTemplate | Plantilla que se utilizará para escribir y dar formato a la información en el archivo de **Info**. | Timestamp: {Timestamp:yyyy-MM-dd HH:mm:ss.fff}{NewLine}{Message}{NewLine}{Separator}{NewLine} |
+| InfoRetainedFile | Número de archivos que serán persistidos por defecto para la información de **Info**. | `2` |
+| InfoFileName | Nombre para el archivo de logs donde se escribirá la información de **Info**. | `Info.txt` |
+| EventLogName | Nombre del registro de eventos del sistema operativo donde se escribirán las entradas de seguimiento para la aplicación. | `Processa` |
+| EventLogSourceName | Nombre que se utilizará como identificador de origen en el log de eventos del sistema operativo. | Cuando no se específica un valor, se usará el nombre del emsamblado que hace uso de la funcionalidad o en su defecto: `Anonymous`. |
+| EventLogTemplate | Plantilla que se utilizará para escribir y dar formato a la información en el log de eventos del sistema operativo. | Timestamp: {Timestamp:yyyy-MM-dd HH:mm:ss.fff}{NewLine}Message: {Message}{NewLine}Username: {Username}{NewLine}Application Name: {ApplicationName}{NewLine}Exception: {Exception}Exception Data: {ExceptionData} |
+| RollingInterval | Especifica la frecuencia en la que se crearán nuevos archivos de registro para la escritura de los logs. **Valores esperados**: `Infinite`: Nunca se crearán nuevos archivos de registro y no se agregará información del período de tiempo al nombre del archivo. `Day` : Se creará un archivo todos los días y se agregará información del período de tiempo al nombre del archivo con el formato: `yyyyMMdd`. `Year`: Se creará un archivo cada año y el nombre del archivo tendrá un año de cuatro dígitos `aaaa`. `Month`: Se creará un archivo cada mes calendario y se agregará información del período de tiempo al nombre del archivo con el formato: `yyyyMM`. `Hour`: Se creará un archivo cada hora y se agregará información del período de tiempo al nombre del archivo con el formato: `yyyyMMddHH`. `Minute`: Se creará un archivo cada minuto y se agregará información del período de tiempo al nombre del archivo con el formato: `yyyyMMddHHmm` | `Day` |
+| FlushToDiskInterval | Intervalo de tiempo (en segundos) en que se realizará una "descarga" completa de la información de logs a los respectivos archivos en disco. | `60` |
+| SlackWebhookUri | URL Webhook del canal en Slack donde se enviarán los mensajes de notificación de errores. Si no se especifica una, los mensajes no se enviarán a Slack. | `null` |
+
+#### Establecer el registro de eventos
+Cuando se escribe en logs la información de un `Error`, automáticamente se registra un evento en el sistema operativo con el origen `EventLogSourceName` en el registro de eventos `EventLogName`.
+
+De forma predeterminada el nombre del registro de eventos es "_Processa_" o el valor de `EventLogName` y el nombre del origen será el valor de `EventLogSourceName`, de lo contrario se usará el nombre de aplicación o por defecto: "_Anonymous_".
+
+:warning: Debe existir previamente el registro de eventos en el sistema operativo, de lo contrario los eventos **NO** serán registrados.
+
+#### Establecer el Webhook de Slack
+Cuando se establece el Webhook del canal en Slack, se enviará una notificación con la información del error.
+
+> Para más información vea: https://api.slack.com/incoming-webhooks
 
 ```c#
 var settings = new LoggerSettings();
-// Vea: https://api.slack.com/incoming-webhooks
-// Reemplace el valor "http://slack.com/services/X/Y/Z" por la URL de su webhook.
-settings.SlackUrl = "http://slack.com/services/X/Y/Z"
+settings.SlackWebhookUri = "http://slack.com/services/X/Y/Z";
 var logManager = new LogManager(settings);
-logManager.Error(AnException, "What happened here?");
+var anException = new ArgumentException("Lorem ipsum dolor sit amet, consectetuer adipiscing elit.");
+logManager.Error(anException, "What happened here?");
 ```
+
+![Preview](image_slack_alert.png)
+
 ## Crear un registrador
 
 Inicie un instancia de la clase `LogManager` y utilice los métodos `Debug`, `Info` y `Error` para registrar la información:
@@ -63,8 +108,9 @@ Inicie un instancia de la clase `LogManager` y utilice los métodos `Debug`, `In
 ```c#
 var logManager = new LogManager();
 logManager.Debug("The time is {Now}", DateTime.Now);
-logManager.Info(new {X=1,Y=true});
-logManager.Error(AnException, "What happened here?");
+logManager.Info(new { X = 1, Y = true });
+var anException = new ArgumentException("Lorem ipsum dolor sit amet, consectetuer adipiscing elit.");
+logManager.Error(anException, "What happened here?");
 ```
 
 El formato de salida se puede modificar utilizando el objeto `LoggerSettings` de configuración, estableciendo valores personalizados en las propiedades `DebugTemplate`, `ErrorTemplate`, `InfoTemplate` y `EventLogTemplate` como se muestra a continuación:
@@ -77,7 +123,6 @@ var logManager = new LogManager(settings);
 Para más información vea: https://github.com/serilog/serilog/wiki/Formatting-Output
 
 Propiedades integradas pueden aparecer en las plantillas de salida, como:
-
 
 - **Message**: El mensaje del evento de registro, representado como texto sin formato
 - **NewLine**: Una propiedad con el valor de System.Environment.NewLine
@@ -114,12 +159,9 @@ Get-EventLog -LogName 'Processa'
 
 ```c#
 var logManager = new LogManager();
-// También puede utilizar la propiedad estática Instance
-// LogManager.Instance
 try
 {
 	logManager.Debug("The time is {Now}", DateTime.Now);
-	LogManager.Instance.Debug("The time is {Now}", DateTime.Now);
 	logManager.Info(myObject);
 }
 catch(Exception exc){
@@ -130,32 +172,55 @@ catch(Exception exc){
 ## Ejemplo de uso personalizado
 
 ```c#
-var settings = new LoggerSettings();
+LoggerSettings settings = new LoggerSettings();
 
 // Guardar los archivos en la carpeta C:\Temp\MyLogs
-settings.RootFolderPath = @"C:\Temp";
-settings.LogFolderPath = "MyLogs"
+settings.LogFolderPath = @"C:\Temp";
+settings.LogFolderName = "MyLogs";
+	
+// Prefijo de los archivos.
+settings.PrefixFileName = "MyApplication";
 
 // Al guardar un error, informar a Slack.
-settings.SlackUrl = "http://slack.com/services/X/Y/Z";
+settings.SlackWebhookUri = "http://slack.com/services/X/Y/Z";
 
 // Conservar los archivos de Debug de las últimas 5 horas.
 settings.RollingInterval = RollingInterval.Hour;
 settings.DebugRetainedFile = 5;
 
-// Escribir al log el path de la carpeta Mis documentos
+// Escribir al log de Errores el path de la carpeta Mis documentos.
 settings.PushVariable("MyDocumentsPath", Environment.SpecialFolder.MyDocuments.ToString());
-
+settings.ErrorTemplate = "Timestamp: {Timestamp:yyyy-MM-dd HH:mm:ss.fff}{NewLine}Message: {Message}{NewLine}Exception: {Exception}Exception Data: {NewLine}{ExceptionData}{NewLine}MyDocumentsPath: '{MyDocumentsPath}'{NewLine}{Separator}{NewLine}";
+	
 // Omitir el procesamiento de excepciones de tipo DivideByZero
 settings.PopException(typeof(DivideByZeroException));
 
-var logManager = new LogManager(settings);
+LogManager logManager = new LogManager(settings);
+	
+// Escribir un log de debug.
+logManager.Debug("The time is {Now}", DateTime.Now);
+logManager.Debug(LogEventLevel.Information, "Slack WebHook: '{SlackWebhookUri}'", settings.SlackWebhookUri);
+logManager.Debug(LogEventLevel.Error, "An uncontrolled exception message.", settings.SlackWebhookUri);
+	
+// Escribir un log de info.
+logManager.Info(new { Value = 10, Guid = Guid.NewGuid().ToString(), Date = DateTime.Now });
+	
+// Escribir un log de error.
+var anException = new ArgumentException("Lorem ipsum dolor sit amet, consectetuer adipiscing elit.");
+anException.Data.Add("Value", "Value");
+anException.Data.Add("Guid", Guid.NewGuid().ToString());
+anException.Data.Add("Date", DateTime.Now);
+logManager.Error(anException, "What happened here?");
+	
+// Las excepciones de tipo DivideByZero no se escribirán en logs.
 try
 {
-	logManager.Debug("The time is {Now}", DateTime.Now);
-	logManager.Info(myObject);
+	int number1 = 3000;
+	int number2 = 0;
+	Console.WriteLine(number1 / number2);
 }
-catch(Exception exc){
-	logManager.Error(exc, "What happened here?");
+catch (DivideByZeroException exc)
+{
+	logManager.Error(exc, "This exception will be ignored.");
 }
 ```
