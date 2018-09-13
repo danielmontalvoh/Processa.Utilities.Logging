@@ -10,6 +10,16 @@ Facilita el registro de información de diagnóstico (*logging*) para una aplica
 
 ![Preview](image_preview.png)
 
+## Instalación
+El paquete `Processa.Utilities.Logging`, está disponible a través de Nuget o Proget
+
+```powershell
+Install-Package Processa.Utilities.Logging
+```
+
+## Versiones soportadas de .NET Framework:
+- NET 4.6.0 o superior
+
 ## Conceptos básicos de configuración
 
 `LogManager` utiliza un API de configuración simple a través de la clase `LoggerSettings`. El constructor predeterminado de `LoggerSettings` implementa una configuración básica que en muchos casos no tendrá que cambiar.
@@ -23,8 +33,8 @@ LoggerSettings settings = new LoggerSettings();
 settings.RootFolderPath = @"C:\Temp";
 var logManager = new LogManager(settings);
 ```
-### Archivo de configuración
-_Processa.Utilities.Logging_ permite la lectura de los datos de configuración desde un archivo de configuración con el nombre: `Processa.Utilities.Logging.dll.config` en el mismo directorio de los ensamblados de su aplicación.
+## Archivo de configuración
+Logging permite la lectura de los datos de configuración desde un archivo de configuración con el nombre: `Processa.Utilities.Logging.dll.config` en el mismo directorio de los ensamblados de su aplicación.
 
 Configuración predeterminada:
 ```xml
@@ -56,7 +66,7 @@ Configuración predeterminada:
 </configuration>
 ``` 
 
-#### Parámetros de configuración:
+### Parámetros de configuración:
 
 | Parámetro | Descripción | Valor predeterminado |
 | --------- | ----------- | -------------------- |
@@ -79,17 +89,14 @@ Configuración predeterminada:
 | FlushToDiskInterval | Intervalo de tiempo (en segundos) en que se realizará una "descarga" completa de la información de logs a los respectivos archivos en disco. | `60` |
 | SlackWebhookUri | URL Webhook del canal en Slack donde se enviarán los mensajes de notificación de errores. Si no se especifica una, los mensajes no se enviarán a Slack. | `null` |
 
-#### Establecer el registro de eventos
-Cuando se escribe en logs la información de un `Error`, automáticamente se registra un evento en el sistema operativo con el origen `EventLogSourceName` en el registro de eventos `EventLogName`.
+## Configurar las notificaciones de Slack
+Logging permite establcer un webhook personalizado para Slack para enviar a un canal de Slack información de una excepción. Una vez configurada la integración de Slack, Logging enviará todos los mensajes de error publicados a dicho canal.
+Siga [estas instrucciones ](https://api.slack.com/incoming-webhooks) para obtener la URL del Webhook.
 
-De forma predeterminada el nombre del registro de eventos es "_Processa_" o el valor de `EventLogName` y el nombre del origen será el valor de `EventLogSourceName`, de lo contrario se usará el nombre de aplicación o por defecto: "_Anonymous_".
-
-:warning: Debe existir previamente el registro de eventos en el sistema operativo, de lo contrario los eventos **NO** serán registrados.
-
-#### Establecer el Webhook de Slack
-Cuando se establece el Webhook del canal en Slack, se enviará una notificación con la información del error.
-
-> Para más información vea: https://api.slack.com/incoming-webhooks
+```AsciiDoc
+Ejemplo de una URL de webhook en Slack
+https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX
+```
 
 ```c#
 var settings = new LoggerSettings();
@@ -100,6 +107,13 @@ logManager.Error(anException, "What happened here?");
 ```
 
 ![Preview](image_slack_alert.png)
+
+## Configurar el registro de eventos
+Cuando se escribe en logs la información de un `Error`, automáticamente se registra un evento en el sistema operativo con el origen `EventLogSourceName` en el registro de eventos `EventLogName`.
+
+De forma predeterminada el nombre del registro de eventos es "_Processa_" o el valor de `EventLogName` y el nombre del origen será el valor de `EventLogSourceName`, de lo contrario se usará el nombre de aplicación o por defecto: "_Anonymous_".
+
+:warning: Debe existir previamente el registro de eventos en el sistema operativo, de lo contrario los eventos **NO** serán registrados.
 
 ## Crear un registrador
 
