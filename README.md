@@ -30,7 +30,7 @@ Si desea personalizar la configuración, basta con cambiar el valor de algunas d
 
 ```c#
 LoggerSettings settings = new LoggerSettings();
-settings.RootFolderPath = @"C:\Temp";
+settings.LogFolderPath = @"C:\Temp";
 var logManager = new LogManager(settings);
 ```
 ## Archivo de configuración
