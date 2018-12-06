@@ -61,6 +61,7 @@ Configuración predeterminada:
     <add key="FlushToDiskInterval" value="60"/>
     <add key="SeqServerUri"/>
     <add key="SeqApiKey"/>
+    <add key="IgnoreProperties"/>
   </appSettings>
   <connectionStrings>
     <clear/>
@@ -90,12 +91,13 @@ Configuración predeterminada:
 | RollingInterval | Especifica la frecuencia en la que se crearán nuevos archivos de registro para la escritura de los logs. **Valores esperados**: `Infinite`: Nunca se crearán nuevos archivos de registro y no se agregará información del período de tiempo al nombre del archivo. `Day` : Se creará un archivo todos los días y se agregará información del período de tiempo al nombre del archivo con el formato: `yyyyMMdd`. `Year`: Se creará un archivo cada año y el nombre del archivo tendrá un año de cuatro dígitos `aaaa`. `Month`: Se creará un archivo cada mes calendario y se agregará información del período de tiempo al nombre del archivo con el formato: `yyyyMM`. `Hour`: Se creará un archivo cada hora y se agregará información del período de tiempo al nombre del archivo con el formato: `yyyyMMddHH`. `Minute`: Se creará un archivo cada minuto y se agregará información del período de tiempo al nombre del archivo con el formato: `yyyyMMddHHmm` | `Day` |
 | FlushToDiskInterval | Intervalo de tiempo (en segundos) en que se realizará una "descarga" completa de la información de logs a los respectivos archivos en disco. | `60` |
 | SlackWebhookUri | URL Webhook del canal en Slack donde se enviarán los mensajes de notificación de errores. Si no se especifica una, los mensajes no se enviarán a Slack. | `null` |
-| SeqServerUri | URL del servidor Seq donde se escribirán eventos de seguimiento. Ejemplo: `http://xxx.xxx.xxx.xxx:xxx/`. | `null` |
-| SeqApiKey | Clave en el API de Seq que identifica a la aplicación que escribe los eventos. Cada clave puede asociarse con un conjunto de propiedades que se aplicarán automáticamente a los eventos escritos con ella. La clave no es obligatoria para la escritura de los eventos. Para ver las claves: [Seq Api Keys](http://localhost:port/#/settings/api-keys) | `null` |
+| SeqServerUri | URL del servidor Seq donde se escribirán eventos de seguimiento. Ejemplo: `http://localhost:4321/`. | `null` |
+| SeqApiKey | Clave en el API de Seq que identifica a la aplicación que escribe los eventos. Cada clave puede asociarse con un conjunto de propiedades que se aplicarán automáticamente a los eventos escritos con ella. La clave no es obligatoria para la escritura de los eventos. Para configurar una clave: `Servidor Seq > Settings > Api Keys` | `null` |
+| IgnoreProperties | Nombres de propiedades que serán excluidas de los logs de `Info` y `Error` antes de escribirse en los destinos (archivos de texto, registros de eventos del sistema, SEQ, etc.) Identifique las propiedades que requiere excluir y sepárelas con punto y coma (`;`) | `null` |
 
 ## Configurar las notificaciones de Slack
 Logging permite establcer un webhook personalizado para Slack para enviar a un canal de Slack información de una excepción. Una vez configurada la integración de Slack, Logging enviará todos los mensajes de error publicados a dicho canal.
-Siga [estas instrucciones ](https://api.slack.com/incoming-webhooks) para obtener la URL del Webhook.
+Siga **[estas instrucciones](https://api.slack.com/incoming-webhooks)** para obtener la URL del Webhook.
 
 ```AsciiDoc
 Ejemplo de una URL de webhook en Slack
