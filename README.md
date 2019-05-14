@@ -62,6 +62,7 @@ Configuración predeterminada:
     <add key="SeqServerUri"/>
     <add key="SeqApiKey"/>
     <add key="IgnoreProperties"/>
+    <add key="RestrictedToMinimumLevel" value="Debug"/>
   </appSettings>
   <connectionStrings>
     <clear/>
@@ -94,6 +95,7 @@ Configuración predeterminada:
 | SeqServerUri | URL del servidor Seq donde se escribirán eventos de seguimiento. Ejemplo: `http://localhost:4321/`. | `null` |
 | SeqApiKey | Clave en el API de Seq que identifica a la aplicación que escribe los eventos. Cada clave puede asociarse con un conjunto de propiedades que se aplicarán automáticamente a los eventos escritos con ella. La clave no es obligatoria para la escritura de los eventos. Para configurar una clave: `Servidor Seq > Settings > Api Keys` | `null` |
 | IgnoreProperties | Nombres de propiedades que serán excluidas de los logs de `Info` y `Error` antes de escribirse en los destinos (archivos de texto, registros de eventos del sistema, SEQ, etc.) Identifique las propiedades que requiere excluir y sepárelas con punto y coma (`;`) | `null` |
+| RestrictedToMinimumLevel | Especifica el nivel mínimo de escritura de eventos. Cuando se proporciona un valor, en los archivos de logs sólo se escribirán los eventos que sean de igual o mayor importancia al nivel configurado. Nivel predeterminado: `Debug`. Si no se especifica un nivel mínimo, se procesarán los eventos de nivel de depuración y superiores. **Valores esperados:** `Debug`: La depuración se usa para eventos internos del sistema que no son necesariamente observables desde el exterior, pero son útiles para determinar cómo sucedió algo. `Information`: Los eventos de información describen cosas que suceden en el sistema que corresponden a sus responsabilidades y funciones. Generalmente estas son las acciones observables que el sistema puede realizar. `Warning`: Cuando el servicio se comporta fuera de los parámetros esperados, se utilizan los eventos de nivel de advertencia. `Error`: Cuando la funcionalidad no está disponible o se producen errores no controlados, se utiliza un evento de error. `Fatal`: El nivel más crítico, los eventos fatales demandan atención inmediata. | `Debug` |
 
 ## Configurar las notificaciones de Slack
 Logging permite establcer un webhook personalizado para Slack para enviar a un canal de Slack información de una excepción. Una vez configurada la integración de Slack, Logging enviará todos los mensajes de error publicados a dicho canal.
@@ -114,12 +116,26 @@ logManager.Error(anException, "What happened here?");
 
 ![Preview](image_slack_alert.png)
 
-## Configurar el registro de eventos
+## Configurar el registro de eventos del SO
 Cuando se escribe en logs la información de un `Error`, automáticamente se registra un evento en el sistema operativo con el origen `EventLogSourceName` en el registro de eventos `EventLogName`.
 
 De forma predeterminada el nombre del registro de eventos es "_Processa_" o el valor de `EventLogName` y el nombre del origen será el valor de `EventLogSourceName`, de lo contrario se usará el nombre de aplicación o por defecto: "_Anonymous_".
 
 :warning: Debe existir previamente el registro de eventos en el sistema operativo, de lo contrario los eventos **NO** serán registrados.
+
+Un ejemplo para crear el registro de eventos:
+
+```powershell
+New-EventLog -LogName 'Processa' -Source 'MyApplication'
+```
+
+## Leer errores del log de eventos del SO
+
+Puede utilizar el comando que se muestra a continuación para leer los errores que se han guardado en el log de eventos del sistema operativo.
+
+```powershell
+Get-EventLog -LogName 'Processa'
+```
 
 ## Crear un registrador
 
@@ -165,14 +181,6 @@ var settings = new LoggerSettings();
 // Omitir el procesamiento de excepciones de tipo DivideByZero
 settings.PopException(typeof(DivideByZeroException));
 var logManager = new LogManager(settings);
-```
-
-## Leer errores del log de eventos del SO
-
-Puede utilizar el comando que se muestra a continuación para leer los errores que se han guardado en el log de eventos del sistema operativo.
-
-```powershell
-Get-EventLog -LogName 'Processa'
 ```
 
 ## Ejemplo de uso básico
